@@ -1,5 +1,7 @@
-include COPYING.LESSER
 include MANIFEST.in
+include COPYING.LESSER
+include AUTHORS.rst
+include RELEASE.rst
 include README.rst
 include setup.cfg.template
 include setup.py
