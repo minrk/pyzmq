@@ -803,6 +803,7 @@ for submod, packages in submodules.items():
         )
         extensions.append(ext)
 
+print ("\n\n%s\n\n" % cython)
 
 package_data = {'zmq':['*.pxd'],
                 'zmq.core':['*.pxd'],
