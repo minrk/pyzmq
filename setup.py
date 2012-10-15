@@ -220,14 +220,19 @@ class Configure(Command):
     description = "Discover ZMQ version and features"
 
     # DON'T REMOVE: distutils demands these be here even if they do nothing.
-    user_options = []
+    user_options = [('compiler=', 'c',
+         "specify the compiler type"),
+    ]
     boolean_options = []
     def initialize_options(self):
+        self.compiler = None
         self.zmq = ZMQ
         self.settings = copy.copy(COMPILER_SETTINGS)
     
     def finalize_options(self):
-        pass
+        self.set_undefined_options('build',
+            ('compiler', 'compiler')
+        )
 
     tempdir = 'detect'
 
@@ -260,6 +265,8 @@ class Configure(Command):
 
     @property
     def compiler_type(self):
+        if self.compiler:
+            return self.compiler
         compiler = self.distribution.get_command_obj("build_ext").compiler
         if compiler is None:
             return get_default_compiler()
@@ -267,7 +274,6 @@ class Configure(Command):
             return compiler
         else:
             return compiler.compiler_type
-        
 
     def check_zmq_version(self):
         zmq = self.zmq
