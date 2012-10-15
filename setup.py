@@ -344,9 +344,9 @@ class Configure(build_ext):
             # When compiling the C++ code inside of libzmq itself, we want to
             # avoid "warning C4530: C++ exception handler used, but unwind
             # semantics are not enabled. Specify /EHsc".
-            if self.compiler == 'msvc':
+            if self.compiler.compiler_type == 'msvc':
                 ext.extra_compile_args.append('/EHsc')
-            elif self.compiler == 'mingw32':
+            elif self.compiler.compiler_type == 'mingw32':
                 ext.define_macros.append(('ZMQ_HAVE_MINGW32', 1))
 
             # And things like sockets come from libraries that must be named.
