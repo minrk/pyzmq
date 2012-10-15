@@ -449,17 +449,21 @@ class Configure(build_ext):
         print ("    ZMQ version detected: %s" % v_str(config['vers']))
         
         return config
-
+    
     def build_extensions(self):
         # no-op - needed to allow build_ext.run to set up compiler
         pass
     
-    def run(self):
+    def setup_compiler(self):
         # build_ext.run sets up the compiler
+        # dummy extension list, so build_ext.run doesn't give up
+        self.extensions = [Extension('dummy', ['dummy.c'])]
         build_ext.run(self)
         if self.compiler.compiler_type == 'mingw32':
             customize_mingw(self.compiler)
-        
+    
+    def run(self):
+        self.setup_compiler()
         if self.zmq == "bundled":
             self.config = self.bundle_libzmq_extension()
             line()
