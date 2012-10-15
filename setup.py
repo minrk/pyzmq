@@ -69,7 +69,7 @@ from buildutils import (
     discover_settings, v_str, save_config, load_config, detect_zmq,
     warn, fatal, debug, line, copy_and_patch_libzmq, localpath,
     fetch_uuid, fetch_libzmq, stage_platform_hpp,
-    bundled_version,
+    bundled_version, customize_mingw,
     )
 
 #-----------------------------------------------------------------------------
@@ -229,7 +229,6 @@ class Configure(build_ext):
     
     def finalize_options(self):
         build_ext.finalize_options(self)
-        pass
 
     tempdir = 'detect'
 
