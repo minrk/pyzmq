@@ -214,19 +214,21 @@ COMPILER_SETTINGS = init_settings(ZMQ)
 # Extra commands
 #-----------------------------------------------------------------------------
 
-class Configure(Command):
+class Configure(build_ext):
     """Configure command adapted from h5py"""
 
     description = "Discover ZMQ version and features"
 
     # DON'T REMOVE: distutils demands these be here even if they do nothing.
-    user_options = []
-    boolean_options = []
+    # user_options = []
+    # boolean_options = []
     def initialize_options(self):
+        build_ext.initialize_options(self)
         self.zmq = ZMQ
         self.settings = copy.copy(COMPILER_SETTINGS)
     
     def finalize_options(self):
+        build_ext.finalize_options(self)
         pass
 
     tempdir = 'detect'
@@ -335,7 +337,7 @@ class Configure(Command):
                 pjoin(bundledir, 'zeromq', 'include'),
             ],
         )
-        
+
         if sys.platform.startswith('win'):
             # include defines from zeromq msvc project:
             ext.define_macros.append(('FD_SETSIZE', 1024))
@@ -343,8 +345,10 @@ class Configure(Command):
             # When compiling the C++ code inside of libzmq itself, we want to
             # avoid "warning C4530: C++ exception handler used, but unwind
             # semantics are not enabled. Specify /EHsc".
-
-            ext.extra_compile_args.append('/EHsc')
+            if self.compiler == 'msvc':
+                ext.extra_compile_args.append('/EHsc')
+            elif self.compiler == 'mingw32':
+                ext.define_macros.append(('ZMQ_HAVE_MINGW32', 1))
 
             # And things like sockets come from libraries that must be named.
 
@@ -439,7 +443,7 @@ class Configure(Command):
         print ("Configure: Autodetecting ZMQ settings...")
         print ("    Custom ZMQ dir:       %s" % zmq)
         try:
-            config = detect_zmq(self.tempdir, **settings)
+            config = detect_zmq(self.tempdir, compiler=self.compiler, **settings)
         finally:
             self.erase_tempdir()
         
