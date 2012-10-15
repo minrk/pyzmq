@@ -455,14 +455,15 @@ class Configure(build_ext):
         pass
     
     def run(self):
-        if self.zmq == "bundled":
-            self.config = self.bundle_libzmq_extension()
-            line()
-            return
         # build_ext.run sets up the compiler
         build_ext.run(self)
         if self.compiler.compiler_type == 'mingw32':
             customize_mingw(self.compiler)
+        
+        if self.zmq == "bundled":
+            self.config = self.bundle_libzmq_extension()
+            line()
+            return
         
         config = None
         
