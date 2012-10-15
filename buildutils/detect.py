@@ -20,6 +20,8 @@ from distutils import ccompiler
 from distutils.sysconfig import customize_compiler
 from subprocess import Popen, PIPE
 
+from .misc import customize_mingw
+
 pjoin = os.path.join
 
 #-----------------------------------------------------------------------------
@@ -56,6 +58,8 @@ def detect_zmq(basedir, compiler=None, **compiler_attrs):
     if compiler is None or isinstance(compiler, str):
         cc = ccompiler.new_compiler(compiler=compiler)
         customize_compiler(cc)
+        if cc.compiler_type == 'mingw32':
+            customize_mingw(cc)
     else:
         cc = compiler
     
