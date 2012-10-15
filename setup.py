@@ -450,11 +450,19 @@ class Configure(build_ext):
         
         return config
 
+    def build_extensions(self):
+        # no-op - needed to allow build_ext.run to set up compiler
+        pass
+    
     def run(self):
         if self.zmq == "bundled":
             self.config = self.bundle_libzmq_extension()
             line()
             return
+        # build_ext.run sets up the compiler
+        build_ext.run(self)
+        if self.compiler.compiler_type == 'mingw32':
+            customize_mingw(self.compiler)
         
         config = None
         
@@ -710,6 +718,9 @@ class CheckingBuildExt(build_ext):
         self.check_cython_extensions(self.extensions)
         self.check_extensions_list(self.extensions)
         
+        if self.compiler.compiler_type == 'mingw32':
+            customize_mingw(self.compiler)
+        
         for ext in self.extensions:
             
             self.build_extension(ext)
@@ -788,6 +799,12 @@ else:
             pass
     
     class zbuild_ext(build_ext_c):
+        
+        def build_extensions(self):
+            if self.compiler.compiler_type == 'mingw32':
+                customize_mingw(self.compiler)
+            return build_ext_c.build_extensions(self)
+        
         def run(self):
             configure = self.distribution.get_command_obj('configure')
             configure.check_zmq_version()

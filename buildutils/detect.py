@@ -52,9 +52,13 @@ def detect_zmq(basedir, compiler=None, **compiler_attrs):
         The compiler options used to compile the test function, e.g. `include_dirs`,
         `library_dirs`, `libs`, etc.
     """
-
-    cc = ccompiler.new_compiler(compiler=compiler)
-    customize_compiler(cc)
+    
+    if compiler is None or isinstance(compiler, str):
+        cc = ccompiler.new_compiler(compiler=compiler)
+        customize_compiler(cc)
+    else:
+        cc = compiler
+    
     for name, val in compiler_attrs.items():
         setattr(cc, name, val)
 
