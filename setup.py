@@ -363,7 +363,6 @@ class Configure(Command):
             if self.compiler_type == 'msvc':
                 ext.extra_compile_args.append('/EHsc')
             elif self.compiler_type == 'mingw32':
-                ext.define_macros.append(('_WIN32', 1))
                 ext.define_macros.append(('ZMQ_HAVE_MINGW32', 1))
 
             # And things like sockets come from libraries that must be named.
