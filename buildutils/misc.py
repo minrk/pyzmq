@@ -10,7 +10,7 @@
 
 def customize_mingw(cc):
     # strip -mno-cygwin from mingw32 (Python Issue #12641)
-    for cmd in [cc.compiler, cc.compiler_cxx, cc.compiler_so]:
+    for cmd in [cc.compiler, cc.compiler_cxx, cc.compiler_so, cc.linker_exe, cc.linker_so]:
         if '-mno-cygwin' in cmd:
             cmd.remove('-mno-cygwin')
     
