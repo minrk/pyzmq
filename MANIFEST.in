@@ -16,14 +16,25 @@ graft docs
 prune docs/build
 prune docs/gh-pages
 
-graft bundled/uuid
-exclude bundled/uuid/Makefile*
 include bundled/zeromq/COPYING
 graft bundled/zeromq/include
-graft bundled/zeromq/src
 include bundled/zeromq/builds/msvc/platform.hpp
-exclude bundled/zeromq/src/Makefile*
+graft bundled/zeromq/src
+exclude bundled/zeromq/src/Makefile
+exclude bundled/zeromq/src/Makefile.am
 exclude bundled/zeromq/src/platform.hpp
+
+# allow configure to run
+include bundled/zeromq/config/install-sh
+include bundled/zeromq/config/config.sub
+include bundled/zeromq/config/config.guess
+include bundled/zeromq/config/ltmain.sh
+recursive-include bundled/zeromq *.in
+# include bundled/zeromq/Makefile.in
+# include bundled/zeromq/*/Makefile.in
+# include bundled/zeromq/builds/msvc/Makefile.in
+# include bundled/zeromq/foreign/openpgm/Makefile.in
+include bundled/zeromq/configure
 
 graft buildutils
 graft examples
