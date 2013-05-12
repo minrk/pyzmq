@@ -20,7 +20,7 @@ from unittest import TestCase
 
 import zmq
 from zmq.tests import BaseZMQTestCase, skip_if
-from zmq.utils.monitor import get_monitor_message
+from zmq.utils.monitor import parse_monitor_message
 
 skip_version = skip_if(zmq.zmq_version_info()[:2] < (3,2),
                        "Monitoring test skipped due to ZMQ version < 3.2!")
@@ -41,12 +41,14 @@ class TestSocketMonitor(BaseZMQTestCase):
         s_event.connect("inproc://monitor.rep")
         # test receive event for connect event
         s_rep.connect("tcp://127.0.0.1:6666")
-        m = get_monitor_message(s_event)
-        self.assertEqual(m['event'], zmq.EVENT_CONNECT_DELAYED)
-        self.assertEqual(m['endpoint'], "tcp://127.0.0.1:6666")
+        msg = s_event.recv_multipart()
+        evt = parse_monitor_message(msg)
+        self.assertEqual(evt['event'], zmq.EVENT_CONNECT_DELAYED)
+        self.assertEqual(evt['endpoint'], "tcp://127.0.0.1:6666")
         # test receive event for connected event
-        m = get_monitor_message(s_event)
-        self.assertEqual(m['event'], zmq.EVENT_CONNECTED)
+        msg = s_event.recv_multipart()
+        evt = parse_monitor_message(msg)
+        self.assertEqual(evt['event'], zmq.EVENT_CONNECTED)
 
     @skip_version
     def test_monitor_connected(self):
@@ -60,9 +62,11 @@ class TestSocketMonitor(BaseZMQTestCase):
         s_event = s_rep.get_monitor_socket()
         # test receive event for connect event
         s_rep.connect("tcp://127.0.0.1:6667")
-        m = get_monitor_message(s_event)
-        self.assertEqual(m['event'], zmq.EVENT_CONNECT_DELAYED)
-        self.assertEqual(m['endpoint'], "tcp://127.0.0.1:6667")
+        msg = s_event.recv_multipart()
+        evt = parse_monitor_message(msg)
+        self.assertEqual(evt['event'], zmq.EVENT_CONNECT_DELAYED)
+        self.assertEqual(evt['endpoint'], "tcp://127.0.0.1:6667")
         # test receive event for connected event
-        m = get_monitor_message(s_event)
-        self.assertEqual(m['event'], zmq.EVENT_CONNECTED)
+        msg = s_event.recv_multipart()
+        evt = parse_monitor_message(msg)
+        self.assertEqual(evt['event'], zmq.EVENT_CONNECTED)

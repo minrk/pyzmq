@@ -537,7 +537,7 @@ cdef class Socket:
         cdef int rc, c_flags
         cdef char* c_addr
         
-        if zmq.zmq_version()[:2] < (3,2):
+        if (ZMQ_VERSION_MAJOR, ZMQ_VERSION_MINOR) < (3,2):
             raise NotImplementedError("monitor requires libzmq >= 3.2, have %s" % zmq.zmq_version())
         
         if isinstance(addr, unicode):
