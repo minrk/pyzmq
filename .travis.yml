@@ -19,6 +19,7 @@ before_install:
   - if [[ ! -z "$PKGS" ]]; then sudo apt-get install -y $PKGS; fi
   - if [[ $TRAVIS_PYTHON_VERSION == 'pypy' ]]; then virtualenv -p /usr/bin/pypy pypy && source pypy/bin/activate; fi
   - if [[ $TRAVIS_PYTHON_VERSION == 'pypy' ]]; then pip install -q --use-mirrors py cffi; fi
+  - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then /usr/bin/python setup.py cython; fi
 
   - if [[ $ZMQ == '2.1.11' ]]; then wget http://download.zeromq.org/zeromq-2.1.11.tar.gz; tar -xzf zeromq-$ZMQ.tar.gz; fi
   - if [[ $ZMQ == '2.1.11' ]]; then sh -c "cd zeromq-$ZMQ; ./configure; make -j; sudo make install; sudo ldconfig"; fi
