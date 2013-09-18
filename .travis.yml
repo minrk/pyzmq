@@ -13,12 +13,12 @@ env:
     - ZMQ=master
 before_install:
   - if [[ $TRAVIS_PYTHON_VERSION == 'pypy' ]]; then PPAS="ppa:pypy/ppa"; PKGS=pypy; else PPAS="ppa:chris-lea/cython"; PKGS=cython; fi
+  - if [[ $ZMQ == '2.1.11' ]]; then PKGS="uuid-dev $PKGS"; fi
+  - if [[ -z $ZMQ ]]; then PKGS="libzmq3-dev $PKGS"; fi
   - if [[ ! -z "$PPAS" ]]; then sudo add-apt-repository -y $PPAS && sudo apt-get update -y; fi
   - if [[ ! -z "$PKGS" ]]; then sudo apt-get install -y $PKGS; fi
   - if [[ $TRAVIS_PYTHON_VERSION == 'pypy' ]]; then virtualenv -p /usr/bin/pypy pypy && source pypy/bin/activate; fi
   - if [[ $TRAVIS_PYTHON_VERSION == 'pypy' ]]; then pip install -q --use-mirrors py cffi; fi
-
-  - if [[ -z "$ZMQ" ]]; then sudo apt-get install -qq libzmq3-dev; fi
 
   - if [[ $ZMQ == '2.1.11' ]]; then wget http://download.zeromq.org/zeromq-2.1.11.tar.gz; tar -xzf zeromq-$ZMQ.tar.gz; fi
   - if [[ $ZMQ == '2.1.11' ]]; then sh -c "cd zeromq-$ZMQ; ./configure; make -j; sudo make install; sudo ldconfig"; fi
