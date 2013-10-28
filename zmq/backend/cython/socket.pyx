@@ -141,20 +141,23 @@ cdef inline object _recv_copy(void *handle, int flags=0):
     zmq_msg_close(&zmq_msg)
     return msg_bytes
 
-cdef inline object _send_frame(void *handle, Frame msg, int flags=0):
+cdef inline object _send_frame(void *handle, Frame frame, int flags=0):
     """Send a Frame on this socket in a non-copy manner."""
     cdef int rc
-    cdef Frame msg_copy
+    cdef zmq_msg_t msg_copy
 
     # Always copy so the original message isn't garbage collected.
     # This doesn't do a real copy, just a reference.
-    msg_copy = msg.fast_copy()
+    rc = zmq_msg_init(&msg_copy)
+    _check_rc(rc)
+    rc = zmq_msg_copy(&msg_copy, &frame.zmq_msg)
+    _check_rc(rc)
 
     with nogil:
-        rc = zmq_msg_send(&msg_copy.zmq_msg, handle, flags)
+        rc = zmq_msg_send(&msg_copy, handle, flags)
 
     _check_rc(rc)
-    return msg.tracker
+    return frame.tracker
 
 
 cdef inline object _send_copy(void *handle, object msg, int flags=0):
@@ -169,17 +172,13 @@ cdef inline object _send_copy(void *handle, object msg, int flags=0):
 
     # Copy the msg before sending. This avoids any complications with
     # the GIL, etc.
-    # If zmq_msg_init_* fails we must not call zmq_msg_close (Bus Error)
     rc = zmq_msg_init_size(&data, msg_c_len)
-
     _check_rc(rc)
-
+    
     with nogil:
-        memcpy(zmq_msg_data(&data), msg_c, zmq_msg_size(&data))
+        memcpy(zmq_msg_data(&data), msg_c, msg_c_len)
         rc = zmq_msg_send(&data, handle, flags)
-        rc2 = zmq_msg_close(&data)
     _check_rc(rc)
-    _check_rc(rc2)
 
 
 cdef class Socket:
