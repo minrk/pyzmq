@@ -297,15 +297,19 @@ class Configure(build_ext):
             'devices',
         )]
         
-        for ext in self.distribution.ext_modules:
-            if ext.name == 'zmq.libzmq':
-                continue
-            for attr, value in settings.items():
-                setattr(ext, attr, value)
-        
         self.compiler_settings = settings
         self.save_config('compiler', settings)
-
+        self.configure_extensions()
+    
+    def configure_extensions(self):
+        """apply my settings to extensions"""
+        for ext in self.distribution.ext_modules:
+            if ext.name == 'zmq.libzmq':
+                # don't configure bundled libzmq
+                continue
+            for attr, value in self.compiler_settings.items():
+                setattr(ext, attr, value)
+    
     def create_tempdir(self):
         self.erase_tempdir()
         os.makedirs(self.tempdir)
@@ -558,9 +562,6 @@ class Configure(build_ext):
     
     def run(self):
         cfg = self.config
-        if 'PyPy' in sys.version:
-            info("PyPy: Nothing to configure")
-            return
         
         if cfg['libzmq_extension']:
             self.bundle_libzmq_extension()
@@ -837,6 +838,14 @@ class CheckingBuildExt(build_ext):
                 """%src)
     
     def build_extensions(self):
+        print("hello")
+        if 'PyPy' in sys.version:
+            try:
+                from zmq.backend.cffi import ffi
+            except ImportError:
+                warn("Couldn't get CFFI extension")
+            else:
+                self.extensions = [ffi.verifier.get_extension()]
         self.check_cython_extensions(self.extensions)
         self.check_extensions_list(self.extensions)
         
@@ -994,13 +1003,7 @@ for submod, packages in submodules.items():
         extensions.append(ext)
 
 if 'PyPy' in sys.version:
-    try:
-        from zmq.backend.cffi import ffi
-    except ImportError:
-        warn("Couldn't get CFFI extension")
-        extensions = []
-    else:
-        extensions = [ffi.verifier.get_extension()]
+    extensions = [Extension('zmq.dummy', sources=[])]
 
 package_data = {'zmq':['*.pxd'],
                 'zmq.backend.cython':['*.pxd'],
