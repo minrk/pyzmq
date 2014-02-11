@@ -31,15 +31,11 @@ class TestThreadedAuthentication(BaseZMQTestCase):
             raise SkipTest("security is new in libzmq 4.0")
         super(TestThreadedAuthentication, self).setUp()
         # silence auth module debug log output during test runs
-        logger = logging.getLogger()
-        self.original_log_level = logger.getEffectiveLevel()
-        logger.setLevel(logging.DEBUG)
+        logging.getLogger('zmq.auth').setLevel(logging.DEBUG)
         self.auth = None
 
     def tearDown(self):
         # return log level to previous state
-        logger = logging.getLogger()
-        logger.setLevel(self.original_log_level)
         if self.auth:
             self.auth.stop()
         super(TestThreadedAuthentication, self).tearDown()
@@ -255,10 +251,7 @@ class TestIOLoopAuthentication(BaseZMQTestCase):
         if zmq.zmq_version_info() < (4,0):
             raise SkipTest("security is new in libzmq 4.0")
 
-        # silence auth module debug log output during test runs
-        logger = logging.getLogger()
-        self.original_log_level = logger.getEffectiveLevel()
-        logger.setLevel(logging.DEBUG)
+        logger = logging.getLogger('zmq.auth').setLevel(logging.DEBUG)
 
         self.test_result = True
         self.io_loop = ioloop.IOLoop()
@@ -276,9 +269,6 @@ class TestIOLoopAuthentication(BaseZMQTestCase):
             self.auth.stop()
             self.auth = None
         self.io_loop.close(all_fds=True)
-        # return log level to previous state
-        logger = logging.getLogger()
-        logger.setLevel(self.original_log_level)
         super(TestIOLoopAuthentication, self).tearDown()
 
     def attempt_connection(self):
@@ -396,7 +386,7 @@ class TestIOLoopAuthentication(BaseZMQTestCase):
 
         if not (self.test_result == True):
             self.fail(self.test_result)
-
+    
     def test_blacklist(self):
         """ test ioloop auth - Blacklist"""
 

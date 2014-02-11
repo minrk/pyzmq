@@ -576,5 +576,6 @@ class IOLoopAuthenticator(Authenticator):
         ''' Stop performing ZAP authentication '''
         if self.zapstream:
             self.zapstream.on_recv(None)
+            self.zapstream.close()
         self.zapstream = None
         super(IOLoopAuthenticator, self).stop()
