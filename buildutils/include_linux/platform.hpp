@@ -95,7 +95,7 @@
 #define HAVE_STRING_H 1
 
 /* Define to 1 if you have the <sys/eventfd.h> header file. */
-#define HAVE_SYS_EVENTFD_H 1
+// #define HAVE_SYS_EVENTFD_H 1
 
 /* Define to 1 if you have the <sys/socket.h> header file. */
 #define HAVE_SYS_SOCKET_H 1
@@ -141,7 +141,7 @@
 #define PACKAGE_NAME "zeromq"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "zeromq 3.2.2"
+#define PACKAGE_STRING "zeromq 4.0.3"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "zeromq"
@@ -150,7 +150,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "3.2.2"
+#define PACKAGE_VERSION "4.0.3"
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #define RETSIGTYPE void
@@ -162,7 +162,7 @@
 #define TIME_WITH_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "3.2.2"
+#define VERSION "4.0.3"
 
 /* Force to use mutexes */
 /* #undef ZMQ_FORCE_MUTEXES */
@@ -177,7 +177,7 @@
 /* #undef ZMQ_HAVE_CYGWIN */
 
 /* Have eventfd extension. */
-#define ZMQ_HAVE_EVENTFD 1
+// #define ZMQ_HAVE_EVENTFD 1
 
 /* Have FreeBSD OS */
 /* #undef ZMQ_HAVE_FREEBSD */
@@ -210,7 +210,7 @@
 /* #undef ZMQ_HAVE_QNXNTO */
 
 /* Whether SOCK_CLOEXEC is defined and functioning. */
-#define ZMQ_HAVE_SOCK_CLOEXEC 1
+// #define ZMQ_HAVE_SOCK_CLOEXEC 1
 
 /* Have Solaris OS */
 /* #undef ZMQ_HAVE_SOLARIS */
