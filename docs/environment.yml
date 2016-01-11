@@ -1,0 +1,7 @@
+name: rtd
+dependencies:
+# - numpydoc # we seem to not use that, but removing break readthedocs conda (for now)
+- zeromq
+# - pip:
+#     - recommonmark # we seem to not use that, but removing break readthedocs conda (for now)
+#     - readthedocs-sphinx-ext # we seem to not use that, but removing break readthedocs conda (fornow)
