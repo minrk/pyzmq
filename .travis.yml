@@ -11,21 +11,45 @@ env:
     - ZMQ=
     - ZMQ=bundled
 before_install:
-  - sudo add-apt-repository -y ppa:anton+/dnscrypt
-  - sudo apt-get update
-  - 'if [[ $ZMQ != bundled ]]; then sudo apt-get install -y -qq libzmq3-dev libsodium-dev; fi'
-  - 'if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then wget https://github.com/minrk/travis-wheels/archive/master.zip -O wheels.zip && unzip wheels.zip; fi'
-  - 'if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then pip install -q -f travis-wheels-master/wheelhouse cython; fi'
-  - 'if [[ ! -z "$ZMQ" && $ZMQ != bundled ]]; then wget https://github.com/zeromq/$ZMQ/archive/master.zip -O libzmq.zip && unzip libzmq.zip; fi'
-  - 'if [[ ! -z "$ZMQ" && $ZMQ != bundled ]]; then sh -c "set -x; cd $ZMQ-master; sh autogen.sh; ./configure; make -j; sudo make install; sudo ldconfig"; fi'
-  - pip install -f file://travis-wheels-master/wheelhouse -r test-requirements.txt
+  - |
+    sudo add-apt-repository -y ppa:anton+/dnscrypt
+    sudo apt-get update
+  - |
+    if [[ $ZMQ != bundled ]]; then
+      sudo apt-get install -y -qq libzmq3-dev libsodium-dev;
+    fi
+  - |
+    if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then
+      pip install cython
+    fi
+  - |
+    if [[ ! -z "$ZMQ" && $ZMQ != bundled ]]; then
+      wget https://github.com/zeromq/$ZMQ/archive/master.zip -O libzmq.zip
+      unzip libzmq.zip
+      cd $ZMQ-master
+      sh autogen.sh
+      ./configure
+      make -j
+      sudo make install
+      sudo ldconfig
+      cd ..
+    fi
+  - pip install -r test-requirements.txt
 
 install:
-  - 'if [[ ! -z "$ZMQ" && $ZMQ != bundled ]]; then export ZMQ=/usr/local; fi'
-  - python setup.py build_ext --inplace --zmq=$ZMQ
+  - |
+    if [[ ! -z "$ZMQ" && $ZMQ != bundled ]]; then
+      export ZMQ=/usr/local;
+    fi
+  - |
+    if [[ "$JOB" != "lint" ]]; then
+      python setup.py build_ext --inplace --zmq=$ZMQ
+    fi
 
 matrix:
   include:
+    - python: 3.5
+      env: JOB=lint
     - python: 3.5
       env: ZMQ=libzmq
     - python: 3.4
@@ -50,4 +74,10 @@ matrix:
     - env: ZMQ=libzmq
     - python: nightly
 
-script: travis_retry python setup.py test
+script:
+  - |
+    if [[ "$JOB" == "lint" ]]; then
+      flake8
+    else
+      travis_retry python setup.py test
+    fi
