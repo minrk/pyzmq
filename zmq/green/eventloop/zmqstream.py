@@ -1,4 +1,4 @@
-from zmq.eventloop.zmqstream import *
+from zmq.eventloop.zmqstream import * # noqa
 
 from zmq.green.eventloop.ioloop import IOLoop
 

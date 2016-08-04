@@ -31,7 +31,7 @@ from traceback import print_exc
 doing_bdist = any(arg.startswith('bdist') for arg in sys.argv[1:])
 
 if any(bdist in sys.argv for bdist in ['bdist_wheel', 'bdist_egg']):
-    import setuptools
+    import setuptools # noqa
 
 import distutils
 from distutils.core import setup, Command
@@ -43,7 +43,7 @@ from distutils.command.sdist import sdist
 from distutils.version import LooseVersion as V
 
 from glob import glob
-from os.path import splitext, basename, join as pjoin
+from os.path import basename, join as pjoin
 
 from subprocess import Popen, PIPE, check_call, CalledProcessError
 
@@ -51,7 +51,7 @@ from subprocess import Popen, PIPE, check_call, CalledProcessError
 from buildutils import (
     discover_settings, v_str, save_config, detect_zmq, merge,
     config_from_prefix,
-    info, warn, fatal, debug, line, copy_and_patch_libzmq, localpath,
+    info, warn, fatal, line, copy_and_patch_libzmq, localpath,
     fetch_libzmq, stage_platform_hpp,
     bundled_version, customize_mingw,
     compile_and_run,

@@ -6,7 +6,6 @@
 
 import logging
 import time
-from unittest import TestCase
 
 import zmq
 from zmq.log import handlers

@@ -12,7 +12,6 @@
 # serve to show the default.
 
 import sys, os
-import string
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -29,7 +28,7 @@ rst_epilog = """
 """.format(**locals())
 
 # patch autodoc to work with Cython Sources
-import sphinx_cython
+import sphinx_cython # noqa
 
 # -- General configuration -----------------------------------------------------
 

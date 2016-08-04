@@ -1,7 +1,8 @@
 # Copyright (C) PyZMQ Developers
 # Distributed under the terms of the Modified BSD License.
 
-import sys
+# flake8: noqa
+
 from unittest import TestCase
 
 class TestImports(TestCase):

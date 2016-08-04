@@ -24,7 +24,7 @@ except ImportError:
     # py3
     from urllib.request import urlopen
 
-from .msg import fatal, debug, info, warn
+from .msg import fatal, info, warn
 
 pjoin = os.path.join
 

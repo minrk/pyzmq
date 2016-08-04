@@ -1,11 +1,10 @@
 # -*- coding: utf8 -*-
 
-import sys
 import time
 
 from unittest import TestCase
 
-from zmq.tests import BaseZMQTestCase, SkipTest
+from zmq.tests import SkipTest
 
 try:
     from zmq.backend.cffi import (

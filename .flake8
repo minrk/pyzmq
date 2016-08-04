@@ -1,0 +1,15 @@
+[flake8]
+# only use F (pyflakes) checks for correctness
+select = F
+ignore =
+    # we only want pyflakes
+    E,W,C,
+    # unused import
+    F401,
+    # may come from import *
+    F405,
+    # local assigned, unused
+    F841
+exclude =
+    __init__.py,
+    zmq/eventloop/minitornado,docs/sphinxext

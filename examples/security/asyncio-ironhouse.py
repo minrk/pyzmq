@@ -20,7 +20,7 @@ import asyncio
 import zmq
 import zmq.auth
 from zmq.auth.asyncio import AsyncioAuthenticator
-from zmq.asyncio import Context, Poller, ZMQEventLoop
+from zmq.asyncio import Context, ZMQEventLoop
 
 
 @asyncio.coroutine

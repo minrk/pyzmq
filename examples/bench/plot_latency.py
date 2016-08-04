@@ -10,7 +10,11 @@ the following for each client::
         %timeit client.echo(s)
 """
 
-from matplotlib.pylab import *
+from numpy import csv2rec
+from matplotlib.pyplot import (
+    loglog, legend, title, xlabel, ylabel, grid, show, savefig,
+    clf, semilogx,
+)
 
 rawdata = """# Data in milliseconds
 Bytes	JSONRPC	PYRO	XMLRPC	pyzmq_copy	pyzmq_nocopy

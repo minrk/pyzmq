@@ -1,4 +1,4 @@
-from zmq.eventloop.ioloop import *
+from zmq.eventloop.ioloop import * # noqa
 from zmq.green import Poller
 
 RealIOLoop = IOLoop

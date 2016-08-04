@@ -2,12 +2,11 @@
 # Distributed under the terms of the Modified BSD License.
 
 import time
-from unittest import TestCase
 
 import zmq
 from zmq import devices
 
-from zmq.tests import BaseZMQTestCase, SkipTest, PYPY
+from zmq.tests import BaseZMQTestCase, PYPY
 from zmq.utils.strtypes import unicode
 
 

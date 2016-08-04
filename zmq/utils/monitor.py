@@ -5,7 +5,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 import struct
-import zmq
+
 from zmq.error import _check_version
 
 def parse_monitor_message(msg):

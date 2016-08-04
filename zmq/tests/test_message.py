@@ -11,8 +11,6 @@ except ImportError:
     grc = None
 
 import time
-from pprint import pprint
-from unittest import TestCase
 
 import zmq
 from zmq.tests import BaseZMQTestCase, SkipTest, skip_pypy, PYPY
@@ -26,7 +24,7 @@ x = b'x'
 try:
     view = memoryview
 except NameError:
-    view = buffer
+    view = buffer # noqa
 
 if grc:
     rc0 = grc(x)
@@ -266,26 +264,6 @@ class TestFrame(BaseZMQTestCase):
             r = b.recv()
             self.assertEqual(s,r)
         self.assertEqual(s, m.bytes)
-    
-    def test_buffer_numpy(self):
-        """test non-copying numpy array messages"""
-        try:
-            import numpy
-        except ImportError:
-            raise SkipTest("numpy required")
-        rand = numpy.random.randint
-        shapes = [ rand(2,16) for i in range(5) ]
-        for i in range(1,len(shapes)+1):
-            shape = shapes[:i]
-            A = numpy.random.random(shape)
-            m = zmq.Frame(A)
-            if view.__name__ == 'buffer':
-                self.assertEqual(A.data, m.buffer)
-                B = numpy.frombuffer(m.buffer,dtype=A.dtype).reshape(A.shape)
-            else:
-                self.assertEqual(memoryview(A), m.buffer)
-                B = numpy.array(m.buffer,dtype=A.dtype).reshape(A.shape)
-            self.assertEqual((A==B).all(), True)
     
     def test_memoryview(self):
         """test messages from memoryview"""

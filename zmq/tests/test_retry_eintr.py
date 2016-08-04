@@ -10,7 +10,7 @@ from pytest import mark
 
 import zmq
 from zmq.tests import (
-    BaseZMQTestCase, SkipTest, skip_pypy
+    BaseZMQTestCase, SkipTest
 )
 from zmq.utils.strtypes import b
 

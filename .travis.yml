@@ -34,7 +34,7 @@ before_install:
       sudo ldconfig
       cd ..
     fi
-  - pip install -r test-requirements.txt
+  - pip install --upgrade --pre -r test-requirements.txt
 
 install:
   - |

@@ -3,7 +3,6 @@
 
 import copy
 import gc
-import sys
 import time
 from threading import Thread, Event
 try:
@@ -13,7 +12,7 @@ except ImportError:
 
 import zmq
 from zmq.tests import (
-    BaseZMQTestCase, have_gevent, GreenTest, skip_green, PYPY, SkipTest,
+    BaseZMQTestCase, GreenTest, PYPY, SkipTest,
 )
 
 

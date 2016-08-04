@@ -7,7 +7,7 @@ import logging
 
 import zmq
 from zmq.utils import z85
-from zmq.utils.strtypes import bytes, unicode, b, u
+from zmq.utils.strtypes import unicode, u
 from zmq.error import _check_version
 
 from .certs import load_certificates

@@ -4,7 +4,6 @@
 # Distributed under the terms of the Modified BSD License.
 
 
-import zmq
 from zmq.backend import zmq_poll
 from .constants import POLLIN, POLLOUT, POLLERR
 

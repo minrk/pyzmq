@@ -3,9 +3,6 @@
 # Distributed under the terms of the Modified BSD License.
 
 
-import sys
-import time
-
 from unittest import TestCase
 
 import zmq

@@ -19,7 +19,6 @@ import os
 import pipes
 import re
 import shutil
-import sys
 
 from contextlib import contextmanager
 

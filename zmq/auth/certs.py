@@ -9,7 +9,7 @@ import glob
 import io
 import os
 import zmq
-from zmq.utils.strtypes import bytes, unicode, b, u
+from zmq.utils.strtypes import bytes, u
 
 
 _cert_secret_banner = u("""#   ****  Generated on {0} by pyzmq  ****

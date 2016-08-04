@@ -3,7 +3,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 import sys
-import time
+from threading import Thread
 
 import zmq
 from zmq import ZMQError, strerror, Again, ContextTerminated
@@ -32,12 +32,12 @@ class TestZMQError(BaseZMQTestCase):
         self.assertRaisesErrno(zmq.EAGAIN, s.recv, zmq.NOBLOCK)
         s.close()
     
-    def atest_ctxterm(self):
+    def test_ctx_term(self):
         s = self.context.socket(zmq.REP)
         t = Thread(target=self.context.term)
         t.start()
         self.assertRaises(ContextTerminated, s.recv, zmq.NOBLOCK)
-        self.assertRaisesErrno(zmq.TERM, s.recv, zmq.NOBLOCK)
+        self.assertRaisesErrno(zmq.ETERM, s.recv, zmq.NOBLOCK)
         s.close()
         t.join()
 

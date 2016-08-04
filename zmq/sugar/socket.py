@@ -41,7 +41,7 @@ except AttributeError:
 try:
     _buffer_type = memoryview
 except NameError:
-    _buffer_type = buffer
+    _buffer_type = buffer # noqa
 
 class Socket(SocketBase, AttributeSetter):
     """The ZMQ socket object

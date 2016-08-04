@@ -3,14 +3,10 @@
 
 This script simply pings a process started by pong.py or tspong.py, to 
 demonstrate that zmq remains responsive while Python blocks.
-
-Authors
--------
-* MinRK
 """
+
 from __future__ import print_function
 
-import sys
 import time
 import numpy
 import zmq

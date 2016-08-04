@@ -4,8 +4,6 @@
 # Copyright (C) PyZMQ Developers
 # Distributed under the terms of the Modified BSD License.
 
-from errno import EINTR
-
 from ._cffi import ffi, C
 
 from zmq.error import ZMQError, InterruptedSystemCall, _check_rc, _check_version

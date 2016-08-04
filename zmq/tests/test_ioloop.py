@@ -8,9 +8,8 @@ import threading
 import zmq
 from zmq.tests import BaseZMQTestCase
 from zmq.eventloop import ioloop
-from zmq.eventloop.minitornado.ioloop import _Timeout
 try:
-    from tornado.ioloop import PollIOLoop, IOLoop as BaseIOLoop
+    from tornado.ioloop import PollIOLoop, IOLoop as BaseIOLoop # noqa
 except ImportError:
     from zmq.eventloop.minitornado.ioloop import IOLoop as BaseIOLoop
 

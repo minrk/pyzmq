@@ -25,10 +25,9 @@ Code adapted from StarCluster:
 
 
 import logging
-from logging import INFO, DEBUG, WARN, ERROR, FATAL
 
 import zmq
-from zmq.utils.strtypes import bytes, unicode, cast_bytes
+from zmq.utils.strtypes import cast_bytes
 
 
 TOPIC_DELIM="::" # delimiter for splitting topics on the receiving end.

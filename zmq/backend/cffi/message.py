@@ -3,15 +3,13 @@
 # Copyright (C) PyZMQ Developers
 # Distributed under the terms of the Modified BSD License.
 
-from ._cffi import ffi, C
-
 import zmq
 from zmq.utils.strtypes import unicode
 
 try:
     view = memoryview
 except NameError:
-    view = buffer
+    view = buffer # noqa: F821
 
 _content = lambda x: x.tobytes() if type(x) == memoryview else x
 
