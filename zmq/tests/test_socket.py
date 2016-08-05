@@ -215,6 +215,7 @@ class TestSocket(BaseZMQTestCase):
     @skip_pypy
     def test_tracker(self):
         "test the MessageTracker object for tracking when zmq is done with a buffer"
+        print('1')
         addr = 'tcp://127.0.0.1'
         a = self.context.socket(zmq.PUB)
         port = a.bind_to_random_port(addr)
@@ -229,6 +230,7 @@ class TestSocket(BaseZMQTestCase):
         p1 = a.send(b'something', copy=False, track=True)
         self.assertTrue(isinstance(p1, zmq.MessageTracker))
         self.assertFalse(p1.done)
+        print('2')
         p2 = a.send_multipart([b'something', b'else'], copy=False, track=True)
         self.assert_(isinstance(p2, zmq.MessageTracker))
         self.assertEqual(p2.done, False)
@@ -240,6 +242,7 @@ class TestSocket(BaseZMQTestCase):
             if p1.done:
                 break
             time.sleep(0.1)
+        print('3')
         self.assertEqual(p1.done, True)
         self.assertEqual(msg, [b'something'])
         msg = b.recv_multipart()
@@ -247,6 +250,7 @@ class TestSocket(BaseZMQTestCase):
             if p2.done:
                 break
             time.sleep(0.1)
+        print('4')
         self.assertEqual(p2.done, True)
         self.assertEqual(msg, [b'something', b'else'])
         m = zmq.Frame(b"again", track=True)
@@ -256,16 +260,19 @@ class TestSocket(BaseZMQTestCase):
         self.assertEqual(m.tracker.done, False)
         self.assertEqual(p1.done, False)
         self.assertEqual(p2.done, False)
+        print('5')
         msg = b.recv_multipart()
         self.assertEqual(m.tracker.done, False)
         self.assertEqual(msg, [b'again'])
         msg = b.recv_multipart()
+        print('6')
         self.assertEqual(m.tracker.done, False)
         self.assertEqual(msg, [b'again'])
         self.assertEqual(p1.done, False)
         self.assertEqual(p2.done, False)
         pm = m.tracker
         del m
+        print('7')
         for i in range(10):
             if p1.done:
                 break
@@ -273,8 +280,9 @@ class TestSocket(BaseZMQTestCase):
         self.assertEqual(p1.done, True)
         self.assertEqual(p2.done, True)
         m = zmq.Frame(b'something', track=False)
+        print('8')
         self.assertRaises(ValueError, a.send, m, copy=False, track=True)
-        
+        print('9')
 
     def test_close(self):
         ctx = self.Context()
