@@ -7,6 +7,7 @@ import os
 import platform
 import time
 import warnings
+import socket
 import sys
 
 from pytest import mark
@@ -209,7 +210,7 @@ class TestSocket(BaseZMQTestCase):
         self.sockets.extend([a,b])
         self.assertRaises(TypeError, a.send_multipart, [b'a', 5])
         a.send_multipart([b'b'])
-        rcvd = b.recv_multipart()
+        rcvd = self.recv_multipart(b)
         self.assertEqual(rcvd, [b'b'])
     
     @skip_pypy
@@ -217,13 +218,16 @@ class TestSocket(BaseZMQTestCase):
         "test the MessageTracker object for tracking when zmq is done with a buffer"
         print('1')
         addr = 'tcp://127.0.0.1'
-        a = self.context.socket(zmq.PUB)
-        port = a.bind_to_random_port(addr)
-        a.close()
-        iface = "%s:%i"%(addr,port)
-        a = self.context.socket(zmq.PAIR)
-        # a.setsockopt(zmq.IDENTITY, b"a")
-        b = self.context.socket(zmq.PAIR)
+        # get a port:
+        sock = socket.socket()
+        sock.bind(('127.0.0.1', 0))
+        port = sock.getsockname()[1]
+        iface = "%s:%i" % (addr, port)
+        sock.close()
+        time.sleep(0.1)
+
+        a = self.context.socket(zmq.PUSH)
+        b = self.context.socket(zmq.PULL)
         self.sockets.extend([a,b])
         a.connect(iface)
         time.sleep(0.1)
@@ -237,15 +241,18 @@ class TestSocket(BaseZMQTestCase):
         self.assertEqual(p1.done, False)
 
         b.bind(iface)
-        msg = b.recv_multipart()
+        print('a')
+        msg = self.recv_multipart(b)
+        print('b')
         for i in range(10):
+            print('i', i)
             if p1.done:
                 break
             time.sleep(0.1)
         print('3')
         self.assertEqual(p1.done, True)
         self.assertEqual(msg, [b'something'])
-        msg = b.recv_multipart()
+        msg = self.recv_multipart(b)
         for i in range(10):
             if p2.done:
                 break
@@ -261,10 +268,10 @@ class TestSocket(BaseZMQTestCase):
         self.assertEqual(p1.done, False)
         self.assertEqual(p2.done, False)
         print('5')
-        msg = b.recv_multipart()
+        msg = self.recv_multipart(b)
         self.assertEqual(m.tracker.done, False)
         self.assertEqual(msg, [b'again'])
-        msg = b.recv_multipart()
+        msg = self.recv_multipart(b)
         print('6')
         self.assertEqual(m.tracker.done, False)
         self.assertEqual(msg, [b'again'])
@@ -344,7 +351,7 @@ class TestSocket(BaseZMQTestCase):
             a.send(msg)
         time.sleep(0.1)
         for i in range(3):
-            self.assertEqual(b.recv_multipart(), [msg])
+            self.assertEqual(self.recv_multipart(b), [msg])
     
     def test_close_after_destroy(self):
         """s.close() after ctx.destroy() should be fine"""
