@@ -1,16 +1,17 @@
+#!/usr/bin/env bash
 set -ex
-env
+
 if [[ $TRAVIS_OS_NAME == osx ]]; then
-  VENV_PATH=$(mktemp -d)
+  rm -rf "$TEST_ENV"
   brew install $PYTHON
-  $PYTHON -m pip install --upgrade setuptools pip
   $PYTHON -m pip install virtualenv
-  $PYTHON -m virtualenv $VENV_PATH
-  export PATH=$VENV_PATH/bin:$PATH
+  $PYTHON -m virtualenv "$TEST_ENV"
 else
   sudo add-apt-repository -y ppa:anton+/dnscrypt
   sudo apt-get update
 fi
+
+pip install --upgrade setuptools pip
 
 if [[ $ZMQ != bundled ]]; then
   if [[ $TRAVIS_OS_NAME == osx ]]; then

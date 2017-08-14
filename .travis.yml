@@ -12,21 +12,31 @@ env:
     - ZMQ=
     # - ZMQ=bundled
 before_install:
-  - . ci/before-install.sh
+  - |
+    if [[ $TRAVIS_OS_NAME == osx ]]; then
+      export TEST_ENV="$PWD/test-env-$PYTHON"
+      export PATH=$TEST_ENV/bin:$PATH
+      rm -rf $TEST_ENV
+    fi
+  - bash ci/before-install.sh
 install:
   - python setup.py build_ext --inplace --zmq=$ZMQ
 
 matrix:
   include:
     - os: osx
+      language: generic
       env: PYTHON=python3
     - os: osx
+      language: generic
       env:
         - PYTHON=pypy3
         - LDFLAGS="-undefined dynamic_lookup"
     - os: osx
+      language: generic
       env: PYTHON=pypy
     - os: osx
+      language: generic
       env: PYTHON=python
     # - python: pypy
     #   env: ZMQ=bundled
