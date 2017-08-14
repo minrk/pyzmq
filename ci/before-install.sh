@@ -3,7 +3,7 @@ set -ex
 
 if [[ $TRAVIS_OS_NAME == osx ]]; then
   rm -rf "$TEST_ENV"
-  brew install $PYTHON
+  brew list --versions $PYTHON || brew install $PYTHON
   $PYTHON -m pip install virtualenv
   $PYTHON -m virtualenv "$TEST_ENV"
 else
