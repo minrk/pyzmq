@@ -1,8 +1,8 @@
 language: python
 
 cache:
-    apt
-    pip
+  - apt
+  - pip
 python:
   # - 2.7
   - 3.6
