@@ -12,6 +12,7 @@ include zmqversion.py
 include tox.ini
 include .travis.yml
 
+graft ci
 graft docs
 graft tools
 prune docs/build
