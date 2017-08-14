@@ -10,7 +10,7 @@ python:
   # - pypy3.5-5.8.0
 env:
     - ZMQ=
-    # - ZMQ=bundled
+    - ZMQ=bundled
 before_install:
   - |
     if [[ $TRAVIS_OS_NAME == osx ]]; then
