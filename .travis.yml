@@ -4,8 +4,8 @@ cache:
     apt
     pip
 python:
-  - 2.7
-  - 3.6
+  # - 2.7
+  # - 3.6
   - pypy2.7-5.8.0
   - pypy3.5-5.8.0
 env:
@@ -45,7 +45,7 @@ install:
   - python setup.py build_ext --inplace --zmq=$ZMQ
 
 matrix:
-  include:
+  include_x:
     - python: 3.6-dev
       env: ZMQ=bundled
     - python: 3.6
