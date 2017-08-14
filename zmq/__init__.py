@@ -29,7 +29,7 @@ def _load_libzmq():
         # store libzmq as zmq._libzmq for backward-compat
         globals()['_libzmq'] = libzmq
         # some versions of pyzmq (< 5?) require loading via CDLL
-        if platform.python_implementation().lower() == 'pypy':
+        if False and platform.python_implementation().lower() == 'pypy':
             # some versions of pypy (< 5?) needs explicit CDLL load for some reason,
             # otherwise symbols won't be globally available
             # this is *probably* harmless where it's not needed
