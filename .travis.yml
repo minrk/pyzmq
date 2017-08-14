@@ -28,18 +28,30 @@ matrix:
   include:
     - os: osx
       language: generic
-      env: PYTHON=python3
+      env:
+        - PYTHON=python3
+        - ZMQ=
+    - os: osx
+      language: generic
+      env:
+        - PYTHON=python3
+        - ZMQ=bundled
     - os: osx
       language: generic
       env:
         - PYTHON=pypy3
+        - ZMQ=bundled
         - LDFLAGS="-undefined dynamic_lookup"
     - os: osx
       language: generic
-      env: PYTHON=pypy
+      env:
+        - PYTHON=pypy
+        - ZMQ=bundled
     - os: osx
       language: generic
-      env: PYTHON=python
+      env:
+        - PYTHON=python
+        - ZMQ=
     # - python: pypy
     #   env: ZMQ=bundled
     # - python: 3.6-dev
