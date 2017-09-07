@@ -48,10 +48,16 @@ before_install:
     fi
 
 install:
-  - python setup.py build_ext --inplace --zmq=$ZMQ
+  - |
+    if [[ "$TEST" != "lint" ]]; then
+      python setup.py build_ext --inplace --zmq=$ZMQ
+    fi
 
 matrix:
   include:
+    - python: 3.6
+      env:
+        - TEST=lint
     - python: pypy
       env: ZMQ=bundled
     - python: 3.6-dev
@@ -86,4 +92,10 @@ matrix:
     - env: ZMQ=libzmq
     - python: nightly
 
-script: travis_retry python setup.py test
+script:
+  - |
+    if [[ "$TEST" == "lint" ]]; then
+      flake8 .
+    else
+      travis_retry python setup.py test
+    fi
