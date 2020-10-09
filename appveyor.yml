@@ -16,35 +16,8 @@ environment:
       secure: NVlc8AZi0Y/k+ZiyFs9rfCoFRbeOqG+PVGSRTM9KpwN3Zantsl9h+/mbT7M7FOkLyIZvo41njOfGKekw762uJDy2Cp/jBhBz/qNgQNHC/+ith/r+NjaRvgO4P783ItckYhG/e0lvWBs8rmdMroC2hNUmL9nGXxbtzn7vG1ZCSkOsyNHRejzTu4Xd/uksFDViLhnJmxQyaozqa5KKcuBoFv4IxkNuoqdE7TgdFEJUmZcciDF13LfWsgm/lARDIsHoze7V5CR139XV1RtGFg5W+A==
 
   matrix:
-    - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7.x"
-      PYTHON_ARCH: 32
-    - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7.x"
-      PYTHON_ARCH: 64
-    - PYTHON: "C:\\Python38"
-      PYTHON_VERSION: "3.8.x"
-      PYTHON_ARCH: 32
-    - PYTHON: "C:\\Python38-x64"
-      PYTHON_VERSION: "3.8.x"
-      PYTHON_ARCH: 64
-    - PYTHON: "C:\\Python37"
-      PYTHON_VERSION: "3.7.x"
-      PYTHON_ARCH: 32
-    - PYTHON: "C:\\Python37-x64"
-      PYTHON_VERSION: "3.7.x"
-      PYTHON_ARCH: 64
-    - PYTHON: "C:\\Python36"
-      PYTHON_VERSION: "3.6.x"
-      PYTHON_ARCH: 32
-    - PYTHON: "C:\\Python36-x64"
-      PYTHON_VERSION: "3.6.x"
-      PYTHON_ARCH: 64
-    - PYTHON: "C:\\Python35"
-      PYTHON_VERSION: "3.5.x"
-      PYTHON_ARCH: 32
-    - PYTHON: "C:\\Python35-x64"
-      PYTHON_VERSION: "3.5.x"
+    - PYTHON: "C:\\Python39"
+      PYTHON_VERSION: "3.9.x"
       PYTHON_ARCH: 64
 matrix:
   fast_finish: true
@@ -63,6 +36,32 @@ install:
 
   - ECHO "Installed SDKs:"
   - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
+
+  - ps: |
+    function InstallPythonEXE($version, $platform, $targetPath) {
+      $urlPlatform = ""
+      if ($platform -eq 'x64') {
+          $urlPlatform = "-amd64"
+      }
+
+      Write-Host "Installing Python $version $platform to $($targetPath)..." -ForegroundColor Cyan
+
+      $downloadUrl = "https://www.python.org/ftp/python/$version/python-$version$urlPlatform.exe"
+      Write-Host "Downloading $($downloadUrl)..."
+      $exePath = "$env:TEMP\python-$version.exe"
+      (New-Object Net.WebClient).DownloadFile($downloadUrl, $exePath)
+
+      Write-Host "Installing..."
+      cmd /c start /wait $exePath /quiet TargetDir="$targetPath" Shortcuts=0 Include_launcher=1 InstallLauncherAllUsers=1 Include_debug=1
+      Remove-Item $exePath
+
+      Start-ProcessWithOutput "$targetPath\python.exe --version"
+
+      Write-Host "Installed Python $version" -ForegroundColor Green
+    }
+
+    InstallPythonExe "3.9.0" "x64" "%PYTHON%"
+
 
   # Prepend newly installed Python to the PATH of this build (this cannot be
   # done from inside the powershell script as it would require to restart
