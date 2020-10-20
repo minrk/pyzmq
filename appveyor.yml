@@ -109,8 +109,8 @@ build_script:
   - forfiles /p dist /m *.whl /c "cmd /c pip install @path"
 
 # uncomment to block RDP for debugging
-# on_finish:
-#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 test_script:
   # Run the project tests
