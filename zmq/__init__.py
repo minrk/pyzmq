@@ -5,7 +5,6 @@
 
 # load bundled libzmq, if there is one:
 
-
 def _load_libzmq():
     """load bundled libzmq if there is one"""
     import sys, platform, os
@@ -79,12 +78,42 @@ def get_includes():
 
 def get_library_dirs():
     """Return a list of directories used to link against pyzmq's bundled libzmq."""
-    from os.path import join, dirname, abspath, pardir
+    from os.path import join, dirname, abspath, pardir, exists
 
     base = dirname(__file__)
     parent = abspath(join(base, pardir))
-    return [join(parent, base)]
+    lib_dirs = [join(parent, base)]
+    # include auditwheel/delocate bundle dirs
+    for lib_subdir in ["pyzmq.libs", ".libs", ".dylibs"]:
+        lib_dir = join(base, lib_subdir)
+        if exists(lib_dir):
+            lib_dirs.append(lib_dir)
+    return lib_dirs
+
+
+def get_bundled_libzmq():
+    """Return the bundled libzmq path
+
+    Returns None if libzmq is not bundled
+    """
+    import glob
+    import os
+    # if libzmq is bundled as an Extension,
+    # return its path
+    try:
+        return libzmq.__file__
+    except NameError:
+        pass
+
+    # find bundled libzmq
+    # e.g. .libs/libzmq-abc123.so.5
+    # or .dylibs/libzmq.5.dylib
+    for d in get_library_dirs():
+        for blob in ("libzmq*.so*", "libzmq*.dylib"):
+            matches = glob.glob(os.path.join(d, blob))
+            if matches:
+                return matches[0]
 
 
 COPY_THRESHOLD = 65536
-__all__ = ['get_includes', 'COPY_THRESHOLD'] + sugar.__all__ + backend.__all__
+__all__ = ['get_includes', 'get_library_dirs', 'get_bundled_libzmq', 'COPY_THRESHOLD'] + sugar.__all__ + backend.__all__
