@@ -1,3 +1,8 @@
+"""Send and receive messages with Cython or Python
+
+runs a test with Cython and Python implementation,
+comparing results
+"""
 from multiprocessing import Process
 
 import array
@@ -27,39 +32,29 @@ def python_sender(url, n):
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description="send & recv messages with Cython")
+    parser = argparse.ArgumentParser(description="send & recv messages with Cython & Python")
     parser.add_argument("--url", default='tcp://127.0.0.1:5555')
     parser.add_argument("-n", default=10, type=int)
     opts = parser.parse_args()
     n = opts.n
     url = opts.url
-    print(f"Sending {n} messages on {url} with Cython")
 
     ctx = zmq.Context()
     pull = ctx.socket(zmq.PULL)
     pull.bind(url)
-    background = Process(target=cython_sender, args=(url, n))
-    background.start()
-    mixed_receiver(pull, n)
-    timer_buf = pull.recv()
-    # unpack timer message
-    a = array.array('d')
-    a.frombytes(timer_buf)
-    seconds = a[0]
-    msgs_per_sec = n / seconds
-    print(f"Cython: {msgs_per_sec:10.0f} msgs/sec")
-
-    print(f"Sending {n} messages on {url} with Python")
-    background = Process(target=python_sender, args=(url, n))
-    background.start()
-    mixed_receiver(pull, n)
-    timer_buf = pull.recv()
-    # unpack timer message
-    a = array.array('d')
-    a.frombytes(timer_buf)
-    seconds = a[0]
-    msgs_per_sec = n / seconds
-    print(f"Python: {msgs_per_sec:10.0f} msgs/sec")
+    for label, sender in [("Cython", cython_sender), ("Python", python_sender)]:
+        print(f"Sending {n} messages on {url} with {label}")
+        background = Process(target=sender, args=(url, n))
+        background.start()
+        mixed_receiver(pull, n)
+        background.join()
+        timer_buf = pull.recv()
+        # unpack timer message
+        a = array.array('d')
+        a.frombytes(timer_buf)
+        seconds = a[0]
+        msgs_per_sec = n / seconds
+        print(f"{label}: {msgs_per_sec:10.0f} msgs/sec")
 
 
 if __name__ == "__main__":

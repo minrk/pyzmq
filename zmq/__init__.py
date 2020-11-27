@@ -92,14 +92,15 @@ def get_library_dirs():
 
 
 def get_bundled_libzmq():
-    """Return the bundled libzmq path
+    """Return the library name of libzmq to link against
 
-    Returns None if libzmq is not bundled
+    If libzmq is bundled, a full path will be given
     """
     import glob
     import os
+
     # if libzmq is bundled as an Extension,
-    # return its path
+    # return its full path
     try:
         return libzmq.__file__
     except NameError:
@@ -113,7 +114,13 @@ def get_bundled_libzmq():
             matches = glob.glob(os.path.join(d, blob))
             if matches:
                 return matches[0]
+                return f":{os.path.basename(matches[0])}"
+
+    if os.name == "nt":
+        return "libzmq"
+    else:
+        return "zmq"
 
 
 COPY_THRESHOLD = 65536
-__all__ = ['get_includes', 'get_library_dirs', 'get_bundled_libzmq', 'COPY_THRESHOLD'] + sugar.__all__ + backend.__all__
+__all__ = ['get_includes', 'get_library_dirs', 'get_library', 'COPY_THRESHOLD'] + sugar.__all__ + backend.__all__
