@@ -61,7 +61,7 @@ jobs:
 
       CIBW_ENVIRONMENT_MACOS: "ZMQ_PREFIX=/usr/local"
       CIBW_ENVIRONMENT_LINUX: "ZMQ_PREFIX=/usr/local"
-      CIBW_ENVIRONMENT_WINDOWS: "PYZMQ_BUNDLE_CRT=1"
+      CIBW_ENVIRONMENT_WINDOWS: "PYZMQ_BUNDLE_CRT=1 DISTUTILS_USE_SDK=1 MSSdk=1"
 
       CIBW_TEST_REQUIRES: "pytest"
       CIBW_TEST_COMMAND: "pytest -vsx --pyargs zmq.tests.test_wheel"
@@ -92,11 +92,13 @@ jobs:
 
           - os: windows-2016
             name: win32
+            arch: x86
             cibw:
               build: "*win32"
 
           - os: windows-2016
             name: win_amd64
+            arch: amd64
             cibw:
               build: "*win_amd64"
 
@@ -126,6 +128,18 @@ jobs:
       - name: show environment
         run: |
           pip freeze
+
+      - name: show available windows sdks
+        if: startsWith(matrix.os, 'win')
+        run: |
+          ls "C:/Program Files/Microsoft SDKs/Windows"
+
+      - name: setup VC++ dev env
+        if: startsWith(matrix.os, 'win')
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          sdk: 7.1
+          arch: ${{ matrix.arch }}
 
       - name: show vcvars
         if: startsWith(matrix.os, 'win')
