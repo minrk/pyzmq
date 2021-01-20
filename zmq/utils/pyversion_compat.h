@@ -4,6 +4,7 @@
 // override by setting WINVER, _WIN32_WINNT, (maybe also NTDDI_VERSION?) macros
 #ifdef Py_WINVER
   #ifndef WINVER
+    #error "this should happen!"
     #define WINVER Py_WINVER
   #endif
   #ifndef _WIN32_WINNT
