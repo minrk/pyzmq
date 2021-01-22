@@ -100,11 +100,13 @@ jobs:
 
           - os: windows-2019
             name: win32
+            arch: x86
             cibw:
               build: "*win32"
 
           - os: windows-2019
             name: win_amd64
+            arch: x64
             cibw:
               build: "*win_amd64"
 
@@ -115,6 +117,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: "3.8"
+          architecture: ${{ matrix.arch }}
 
       - name: install dependencies
         run: |
