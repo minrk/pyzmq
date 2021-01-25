@@ -4,6 +4,7 @@ Just import things
 """
 
 import os
+import platform
 import sys
 
 import pytest
@@ -29,9 +30,19 @@ def test_bundle_msvcp():
     pyzmq_lib_dir = os.path.join(zmq_dir, os.pardir, "pyzmq.libs")
     dlls = sorted([name for name in os.listdir(pyzmq_lib_dir) if name.endswith(".dll")])
     print(dlls)
-    assert "vcruntime140.dll" not in dlls
-    for expected in ["concrt140.dll", "msvcp140.dll"]:
-        assert expected in dlls
+    should_bundle = ["concrt140.dll", "msvcp140.dll"]
+    vcruntime = "vcruntime140.dll"
+    shouldnt_bundle = []
+    if platform.python_implementation() == 'PyPy':
+        should_bundle.append(vcruntime)
+    else:
+        shouldnt_bundle.append(vcruntime)
+
+    for dll in shouldnt_bundle:
+        assert dll not in dlls
+
+    for dll in should_bundle:
+        assert dll in dlls
 
     assert any(dll.startswith("libzmq") for dll in dlls)
     assert any(dll.startswith("libsodium") for dll in dlls)
