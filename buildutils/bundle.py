@@ -43,7 +43,7 @@ libzmq_checksum = (
 HERE = os.path.dirname(__file__)
 ROOT = os.path.dirname(HERE)
 
-vcversion = 141
+vcversion = 140
 
 if platform.architecture()[0] == '64bit':
     msarch = '-x64'
