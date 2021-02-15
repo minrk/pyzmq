@@ -174,14 +174,6 @@ jobs:
         run: |
           docker run --rm --privileged hypriot/qemu-register:v4.2.0
 
-      - name: customize aarch64
-        if: contains(matrix.cibw.arch, 'aarch64')
-        # install zeromq-devel because building libzmq for arm takes too long
-        # it's not in default packages, but it is in epel-7
-        # this will be an older release than than other wheels
-        run: |
-          echo 'CIBW_BEFORE_ALL_LINUX=yum -y install epel-release && yum -y install zeromq-devel' >> "$GITHUB_ENV"
-
       - name: install dependencies
         run: |
           pip install --upgrade setuptools pip wheel
