@@ -14,6 +14,7 @@ env:
   cython: "0.29.21"
   cibuildwheel: "1.9.0"
   TWINE_NONINTERACTIVE: "1"
+  VCPKG_VERSION: ca466d339ea8673a8702d04374df40e1782f1430
 
 jobs:
   sdist:
@@ -89,54 +90,54 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-10.15
-            name: mac
-
-          - os: macos-10.15
-            name: mac-arm
-            cibw:
-              arch: universal2
-              build: "cp39*"
-
-          - os: ubuntu-20.04
-            name: manylinux1
-            cibw:
-              build: "cp36* cp37*"
-              manylinux_image: manylinux1
-
-          - os: ubuntu-20.04
-            name: manylinux2010
-            cibw:
-              build: "cp38* cp39* pp3*"
-              manylinux_image: manylinux2010
-
-          - os: ubuntu-20.04
-            name: cp36-manylinux_aarch64
-            cibw:
-              build: "cp36*"
-              manylinux_image: manylinux2014
-              arch: aarch64
-
-          - os: ubuntu-20.04
-            name: cp37-manylinux_aarch64
-            cibw:
-              build: "cp37*"
-              manylinux_image: manylinux2014
-              arch: aarch64
-
-          - os: ubuntu-20.04
-            name: cp38-manylinux_aarch64
-            cibw:
-              build: "cp38*"
-              manylinux_image: manylinux2014
-              arch: aarch64
-
-          - os: ubuntu-20.04
-            name: cp39-manylinux_aarch64
-            cibw:
-              build: "cp39*"
-              manylinux_image: manylinux2014
-              arch: aarch64
+          #           - os: macos-10.15
+          #             name: mac
+          #
+          #           - os: macos-10.15
+          #             name: mac-arm
+          #             cibw:
+          #               arch: universal2
+          #               build: "cp39*"
+          #
+          #           - os: ubuntu-20.04
+          #             name: manylinux1
+          #             cibw:
+          #               build: "cp36* cp37*"
+          #               manylinux_image: manylinux1
+          #
+          #           - os: ubuntu-20.04
+          #             name: manylinux2010
+          #             cibw:
+          #               build: "cp38* cp39* pp3*"
+          #               manylinux_image: manylinux2010
+          #
+          #           - os: ubuntu-20.04
+          #             name: cp36-manylinux_aarch64
+          #             cibw:
+          #               build: "cp36*"
+          #               manylinux_image: manylinux2014
+          #               arch: aarch64
+          #
+          #           - os: ubuntu-20.04
+          #             name: cp37-manylinux_aarch64
+          #             cibw:
+          #               build: "cp37*"
+          #               manylinux_image: manylinux2014
+          #               arch: aarch64
+          #
+          #           - os: ubuntu-20.04
+          #             name: cp38-manylinux_aarch64
+          #             cibw:
+          #               build: "cp38*"
+          #               manylinux_image: manylinux2014
+          #               arch: aarch64
+          #
+          #           - os: ubuntu-20.04
+          #             name: cp39-manylinux_aarch64
+          #             cibw:
+          #               build: "cp39*"
+          #               manylinux_image: manylinux2014
+          #               arch: aarch64
 
           - os: windows-2019
             name: win32
@@ -214,8 +215,12 @@ jobs:
         if: startsWith(matrix.os, 'win')
         run: |
           pip install delvewheel
-          python setup.py fetch_libzmq --dll
-          xcopy /i libzmq-dll C:\\libzmq-dll
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          git reset --hard ${{ env.VCPKG_VERSION }}
+          cd ..
+          .\vcpkg\bootstrap-vcpkg.bat
+          vcpkg install zeromq:${{ matrix.architecture }}-windows
 
       - name: show environment
         run: |
