@@ -3,7 +3,7 @@
 set -ex
 LIBSODIUM_VERSION="1.0.18"
 
-LIBZMQ_VERSION="$(python3 -m buildutils.bundle)"
+LIBZMQ_VERSION="$(${PYTHON:-python3} -m buildutils.bundle)"
 
 if [[ "$(uname)" == "Darwin" ]]; then
     ARCHS="x86_64"

@@ -1,0 +1,31 @@
+name: libzmq for aarch64 wheels
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-libzmq:
+    env:
+      image: quay.io/pypa/manylinux2014_aarch64
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: register qemu
+        run: |
+          docker run --rm --privileged hypriot/qemu-register:v4.2.0
+      - name: build libzmq
+        run: |
+          rm -rf pyzmq-libzmq
+          mkdir pyzmq-libzmq
+          docker run \
+            --rm -it \
+            -v $PWD:/repo \
+            -e PREFIX=/repo/pyzmq-libzmq \
+            -e PYTHON=/opt/python/cp39-cp39/bin/python3 \
+            -w /repo \
+            quay.io/pypa/manylinux2014_aarch64 \
+            bash tools/install_libzmq.sh
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pyzmq-libzmq-aarch64
+          path: pyzmq-libzmq
