@@ -21,6 +21,7 @@ class AsyncioAuthenticator(Authenticator):
 
     __poller: Optional[Poller]
     __task: Any
+    _async_socket: Optional["zmq.asyncio.Socket"]
 
     def __init__(
         self,
@@ -42,24 +43,28 @@ class AsyncioAuthenticator(Authenticator):
     async def __handle_zap(self) -> None:
         while self.__poller is not None:
             events = await self.__poller.poll()
-            if self.zap_socket in dict(events):
+            if self._async_socket in dict(events):
                 msg = self.zap_socket.recv_multipart()
                 await self.handle_zap_message(msg)
 
     def start(self) -> None:
         """Start ZAP authentication"""
         super().start()
+        self._async_socket = zmq.asyncio.Socket.from_socket(self.zap_socket)
         self.__poller = Poller()
-        self.__poller.register(self.zap_socket, zmq.POLLIN)
+        self.__poller.register(self._async_socket, zmq.POLLIN)
         self.__task = asyncio.ensure_future(self.__handle_zap())
 
     def stop(self) -> None:
         """Stop ZAP authentication"""
         if self.__task:
             self.__task.cancel()
-        if self.__poller:
-            self.__poller.unregister(self.zap_socket)
+        if self.__poller and self._async_socket:
+            self.__poller.unregister(self._async_socket)
             self.__poller = None
+            self._async_socket.close()
+            self._async_socket = None
+            self.zap_socket = None  # type: ignore
         super().stop()
 
 
