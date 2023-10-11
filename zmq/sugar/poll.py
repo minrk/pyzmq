@@ -101,6 +101,7 @@ class Poller:
             timeout = -1
         elif isinstance(timeout, float):
             timeout = int(timeout)
+        print("self.sockets", self.sockets)
         return zmq_poll(self.sockets, timeout=timeout)
 
 

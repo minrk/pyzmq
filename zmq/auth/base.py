@@ -62,6 +62,7 @@ class Authenticator:
         log: Any = None,
     ):
         _check_version((4, 0), "security")
+        assert context is not None
         self.context = context or zmq.Context.instance()
         self.encoding = encoding
         self.allow_any = False
@@ -80,13 +81,28 @@ class Authenticator:
     def start(self) -> None:
         """Create and bind the ZAP socket"""
         self.zap_socket = self.context.socket(zmq.REP, socket_class=zmq.Socket)
+        import inspect, traceback
+
+        frame = inspect.currentframe()
+        import logging
+
+        log = logging.getLogger()
+        log.info(f"Creating {self} {self.zap_socket}")
+        stack_trace = traceback.format_stack(frame, limit=10)
+        log.debug("".join(stack_trace[:-1]))
         self.zap_socket.linger = 1
         self.zap_socket.bind("inproc://zeromq.zap.01")
         self.log.debug("Starting")
 
+    def __del__(self):
+        self.log.info(f"Deleting {self}! {self.zap_socket}")
+        assert self.zap_socket is None
+
     def stop(self) -> None:
         """Close the ZAP socket"""
+        self.log.debug(f"stopping! {self}")
         if self.zap_socket:
+            self.log.debug(f"Closing {self} {self.zap_socket}")
             self.zap_socket.close()
         self.zap_socket = None  # type: ignore
 
@@ -187,6 +203,7 @@ class Authenticator:
         self.allow_any = False
 
         if credentials_provider is not None:
+            self.log.info(f"Registering credentials_provider for {domain}")
             self.credentials_providers[domain] = credentials_provider
         else:
             self.log.error("None credentials_provider provided for domain:%s", domain)
@@ -368,7 +385,7 @@ class Authenticator:
             allowed = True
             reason = b"OK"
             self.log.debug("ALLOWED (CURVE allow any client)")
-        elif self.credentials_providers != {}:
+        elif self.credentials_providers:
             # If no explicit domain is specified then use the default domain
             if not domain:
                 domain = '*'
@@ -379,6 +396,7 @@ class Authenticator:
                 r = self.credentials_providers[domain].callback(domain, z85_client_key)
                 if isinstance(r, Awaitable):
                     r = await r
+                print("curve!", domain)
                 if r:
                     allowed = True
                     reason = b"OK"

@@ -177,7 +177,9 @@ class Socket(SocketBase, AttributeSetter, Generic[ST]):
 
     def __del__(self):
         if not self._shadow and not self.closed:
-            if warn is not None:
+            import logging
+
+            if True or warn is not None:
                 # warn can be None during process teardown
                 warn(
                     f"Unclosed socket {self}",
@@ -185,6 +187,7 @@ class Socket(SocketBase, AttributeSetter, Generic[ST]):
                     stacklevel=2,
                     source=self,
                 )
+            logging.error(f"Unclosed socket {self}!")
             self.close()
 
     _repr_cls = "zmq.Socket"
@@ -196,9 +199,9 @@ class Socket(SocketBase, AttributeSetter, Generic[ST]):
         if _repr_cls is None:
             _repr_cls = f"{cls.__module__}.{cls.__name__}"
 
-        closed = ' closed' if self._closed else ''
+        closed = ' closed' if self.closed else ''
 
-        return f"<{_repr_cls}(zmq.{self._type_name}) at {hex(id(self))}{closed}>"
+        return f"<{_repr_cls}(zmq.{self._type_name}) at {hex(id(self))}{closed} {self._shadow_obj=}>"
 
     # socket as context manager:
     def __enter__(self: T) -> T:
@@ -253,6 +256,15 @@ class Socket(SocketBase, AttributeSetter, Generic[ST]):
         garbage collected,
         in which case you may see a ResourceWarning about the unclosed socket.
         """
+        import inspect, traceback
+
+        frame = inspect.currentframe()
+        import logging
+
+        log = logging.getLogger()
+        log.info(f"Closing {self}")
+        stack_trace = traceback.format_stack(frame, limit=10)
+        log.debug("".join(stack_trace[:-1]))
         if self.context:
             self.context._rm_socket(self)
         super().close(linger=linger)

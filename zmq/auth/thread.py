@@ -54,19 +54,25 @@ class AuthenticationThread(Thread):
 
     async def _run(self):
         self.poller = zmq.asyncio.Poller()
-        self.poller.register(self.pipe, zmq.POLLIN)
-        self.poller.register(self.authenticator.zap_socket, zmq.POLLIN)
+        _async_pipe = zmq.asyncio.Socket.from_socket(self.pipe)
+        self.poller.register(_async_pipe, zmq.POLLIN)
+        _async_socket = zmq.asyncio.Socket.from_socket(self.authenticator.zap_socket)
+        self.poller.register(_async_socket, zmq.POLLIN)
         self.started.set()
 
         while True:
             events = dict(await self.poller.poll())
-            if self.pipe in events:
+            if _async_pipe in events:
                 msg = self.pipe.recv_multipart()
                 if self._handle_pipe_message(msg):
+                    _async_pipe._clear_io_state()
+                    _async_socket._clear_io_state()
                     return
-            if self.authenticator.zap_socket in events:
+                _async_pipe._schedule_remaining_events()
+            if _async_socket in events:
                 msg = self.authenticator.zap_socket.recv_multipart()
                 await self.authenticator.handle_zap_message(msg)
+                _async_socket._schedule_remaining_events()
 
     def _handle_pipe_message(self, msg: List[bytes]) -> bool:
         command = msg[0]
@@ -120,6 +126,7 @@ class ThreadAuthenticator(Authenticator):
     def stop(self) -> None:
         """Stop the authentication thread"""
         if self.pipe:
+            print("pipe closing")
             self.pipe.send(b'TERMINATE')
             if self.is_alive():
                 self.thread.join()

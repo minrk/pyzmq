@@ -107,6 +107,7 @@ class AuthTest:
     auth = None
 
     async def async_setup(self):
+        print("async setup")
         self.context = zmq.asyncio.Context()
         if zmq.zmq_version_info() < (4, 0):
             raise SkipTest("security is new in libzmq 4.0")
@@ -117,6 +118,7 @@ class AuthTest:
         # enable debug logging while we run tests
         logging.getLogger('zmq.auth').setLevel(logging.DEBUG)
         self.auth = self.make_auth()
+        self.log = self.auth.log
         await self.start_auth()
 
     async def async_teardown(self):
@@ -129,6 +131,11 @@ class AuthTest:
         if sys.platform.startswith("win"):
             await asyncio.sleep(0.1)
         self.context.term()
+        import gc
+
+        gc.collect()
+        gc.collect()
+        gc.collect()
 
     def make_auth(self):
         raise NotImplementedError()
@@ -138,6 +145,7 @@ class AuthTest:
 
     async def can_connect(self, server, client, timeout=1000):
         """Check if client can connect to server using tcp transport"""
+        log = self.log
         result = False
         iface = 'tcp://127.0.0.1'
         port = server.bind_to_random_port(iface)
@@ -145,24 +153,31 @@ class AuthTest:
         msg = [b"Hello World"]
         # run poll on server twice
         # to flush spurious events
-        await server.poll(100, zmq.POLLOUT)
+        log.info("Poll 0")
+        r = await server.poll(100, zmq.POLLOUT)
+        log.info("Server poll 0: %s", r)
 
         if await server.poll(timeout, zmq.POLLOUT):
+            log.info("server connected")
             try:
                 await server.send_multipart(msg, zmq.NOBLOCK)
             except zmq.Again:
                 warnings.warn("server set POLLOUT, but cannot send", RuntimeWarning)
                 return False
+            log.info("server sent")
         else:
+            log.info("server never pollout")
             return False
 
         if await client.poll(timeout):
+            log.info("client polled")
             try:
                 rcvd_msg = await client.recv_multipart(zmq.NOBLOCK)
             except zmq.Again:
                 warnings.warn("client set POLLIN, but cannot recv", RuntimeWarning)
             else:
                 assert rcvd_msg == msg
+                log.info("client received")
                 result = True
         return result
 
@@ -264,6 +279,7 @@ class AuthTest:
         # Remove authenticator and check that a normal connection works
         self.auth.stop()
         self.auth = None
+        print("starting again")
         with self.push_pull() as (server, client):
             assert await self.can_connect(server, client)
 
@@ -287,7 +303,7 @@ class AuthTest:
                     location = public_keys_dir
                 self.auth.configure_curve(domain='*', location=location)
             if success:
-                assert await self.can_connect(server, client, timeout=100)
+                assert await self.can_connect(server, client)
             else:
                 assert not await self.can_connect(server, client, timeout=100)
 
@@ -314,12 +330,14 @@ class AuthTest:
                     self.client = server_public
 
             def callback(self, domain, key):
+                print("callback", domain, key, self.client)
                 if key == self.client:
                     return True
                 else:
                     return False
 
             async def async_callback(self, domain, key):
+                print("async callback", domain, key, self.client)
                 await asyncio.sleep(0.1)
                 if key == self.client:
                     return True

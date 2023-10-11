@@ -120,14 +120,20 @@ class _AsyncPoller(_Async, _zmq.Poller):
         )
 
         wrapped_sockets: List[_AsyncSocket] = []
+        import logging
+
+        log = logging.getLogger()
 
         def _clear_wrapper_io(f):
+            1 / 0
             for s in wrapped_sockets:
+                log.debug(f"clearing io state for {s}")
                 s._clear_io_state()
 
         for socket, mask in self.sockets:
             if isinstance(socket, _zmq.Socket):
                 if not isinstance(socket, self._socket_class):
+                    raise RuntimeError(f"Shouldn't have wrapped socket! {socket}")
                     # it's a blocking zmq.Socket, wrap it in async
                     socket = self._socket_class.from_socket(socket)
                     wrapped_sockets.append(socket)
@@ -145,6 +151,7 @@ class _AsyncPoller(_Async, _zmq.Poller):
                 self._watch_raw_socket(loop, socket, evt, wake_raw)
 
         def on_poll_ready(f):
+            log.debug("on_poll_ready %s %s %s", self, future, self.sockets)
             if future.done():
                 return
             if watcher.cancelled():
@@ -159,9 +166,27 @@ class _AsyncPoller(_Async, _zmq.Poller):
             else:
                 try:
                     result = super(_AsyncPoller, self).poll(0)
+                except _zmq.ZMQError as e:
+                    # catch ENOTSOCK
+                    if e.errno == _zmq.constants.Errno.ENOTSOCK:
+                        # If the user gave a non-socket,
+                        # this would raise earlier
+                        # the cause of ENOTSOCK here is likely a socket has been closed
+                        # while the async poll was outstanding,
+                        # in which case let's return no events.
+                        log.debug(
+                            f"Async poll triggered after closed socket {e}, {[(s, s.closed) for s, _ in self.sockets]}"
+                        )
+                        future.set_exception(e)
+                        # future.set_result([])
+                    else:
+                        log.debug("Setting z exception %s", e)
+                        future.set_exception(e)
                 except Exception as e:
+                    log.debug("Setting exception %s", e)
                     future.set_exception(e)
                 else:
+                    log.debug("Setting result %s", result)
                     future.set_result(result)
 
         watcher.add_done_callback(on_poll_ready)
@@ -173,6 +198,7 @@ class _AsyncPoller(_Async, _zmq.Poller):
             # schedule cancel to fire on poll timeout, if any
             def trigger_timeout():
                 if not watcher.done():
+                    print("triggering timeout")
                     watcher.set_result(None)
 
             timeout_handle = loop.call_later(1e-3 * timeout, trigger_timeout)

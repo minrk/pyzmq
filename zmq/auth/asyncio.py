@@ -42,7 +42,7 @@ class AsyncioAuthenticator(Authenticator):
 
     async def __handle_zap(self) -> None:
         while self.__poller is not None:
-            events = await self.__poller.poll()
+            events = await self.__poller.poll(timeout=100)
             if self._async_socket and self._async_socket in dict(events):
                 msg = self.zap_socket.recv_multipart()
                 await self.handle_zap_message(msg)
@@ -50,6 +50,8 @@ class AsyncioAuthenticator(Authenticator):
                 # we need to poke the async wrapper to ensure events
                 # are handled
                 self._async_socket._schedule_remaining_events()
+            else:
+                self.log.debug("nothing to handle")
 
     def start(self) -> None:
         """Start ZAP authentication"""
@@ -62,6 +64,7 @@ class AsyncioAuthenticator(Authenticator):
     def stop(self) -> None:
         """Stop ZAP authentication"""
         if self.__task:
+            self.log.info("Canceling task!")
             self.__task.cancel()
         if self.__poller and self._async_socket:
             self.__poller.unregister(self._async_socket)
