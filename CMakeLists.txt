@@ -9,6 +9,9 @@ find_package(
   COMPONENTS Interpreter Development.Module
   REQUIRED)
 
+message(STATUS "SKBUILD_SOABI=${SKBUILD_SOABI}")
+message(STATUS "Python_SOABI=${Python_SOABI}")
+
 # legacy pyzmq env options, no PYZMQ_ prefix
 set(ZMQ_PREFIX "auto" CACHE STRING "libzmq installation prefix or 'bundled'")
 option(ZMQ_DRAFT_API "whether to build the libzmq draft API" OFF)
